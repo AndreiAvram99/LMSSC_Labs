@@ -1,8 +1,7 @@
-import sys
 from nltk.corpus import wordnet as wn
 import random
-
 import nltk
+
 nltk.download('wordnet')
 domain = input("Type a domain: ")
 
@@ -23,8 +22,12 @@ def get_hyponyms(domain):
 
 
 def get_antonym(word):
-    antonyms = wn.synset(f'{word}.n.01')
-    return antonyms.antonyms().name().split(".")[0]
+    antonym_list = []
+    for synset in wn.synsets(word):
+        for lemma in synset.lemmas():
+            if lemma.antonyms():
+                antonym_list.append(lemma.antonyms()[0].name())
+    return antonym_list[0]
 
 
 def get_def(word):
@@ -33,28 +36,46 @@ def get_def(word):
 
 
 def get_synonym(word):
-    synonym = wn.synset(f"{word}.n.01")
-    return synonym.name().split(".")[0]
+    synonym_list = []
+    for synset in wn.synsets(word):
+        for lemma in synset.lemmas():
+            synonym_list.append(lemma.name().split(".")[0])
+    for synonym in synonym_list:
+        if synonym != word:
+            return synonym
 
 
 def has_synonysms(word):
     try:
-        synonyms = wn.synset(f'{word}.n.01')
+        synonym_list = []
+        for synset in wn.synsets(word):
+            for lemma in synset.lemmas():
+                synonym_list.append(lemma.name())
     except:
         return False
-    return True
+
+    if len(synonym_list) > 1:
+        print(synonym_list, "\n")
+        return True
+    else:
+        return False
 
 
 def has_antonyms(word):
     try:
-        antonyms = wn.synset(f'{word}.n.01')
+        antonym_list = []
+        for synset in wn.synsets(word):
+            for lemma in synset.lemmas():
+                if lemma.antonyms():
+                    antonym_list.append(lemma.antonyms()[0].name())
     except:
         return False
 
-    for lemma in antonyms.lemmas():
-        if lemma.antonyms():
-            return True
-    return False
+    if len(antonym_list) > 0:
+        print(antonym_list, "\n")
+        return True
+    else:
+        return False
 
 
 domain_hyponyms = get_hyponyms(domain)
@@ -66,8 +87,11 @@ questions_list = []
 
 for word in words_list:
     rnd = random.randint(0, 2)
-    if rnd == 1:
-        print(word)
+
+    if rnd == 0:
+        print("Looking for a synonym for: ", word)
+    else:
+        print("Looking for an antonym for: ", word)
 
     if rnd == 0 and has_synonysms(word):
         questions_list.append(f"Synonym for {get_synonym(word)}")
@@ -75,7 +99,6 @@ for word in words_list:
         questions_list.append(f"Antonym for {get_antonym(word)}")
     else:
         questions_list.append(get_def(word))
-
 
 print(words_list)
 print(questions_list)
