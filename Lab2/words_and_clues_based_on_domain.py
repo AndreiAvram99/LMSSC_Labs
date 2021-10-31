@@ -1,9 +1,8 @@
+import string
+from typing import List, Any
+
 from nltk.corpus import wordnet as wn
 import random
-import nltk
-
-nltk.download('wordnet')
-domain = input("Type a domain: ")
 
 
 def get_synset(domain):
@@ -11,7 +10,7 @@ def get_synset(domain):
     return domain_synset
 
 
-def get_hyponyms(domain):
+def get_hyponyms(domain) -> List[Any]:
     domain_synset = get_synset(domain)
     domain_hyponyms = domain_synset.hyponyms()
     index = 0
@@ -78,30 +77,39 @@ def has_antonyms(word):
         return False
 
 
-domain_hyponyms = get_hyponyms(domain)
-# print(domain_hyponyms)
+def parse_words_list(words_list: List[str]):
+    for word in words_list:
+        for character in word:
+            if character in string.punctuation:
+                words_list.remove(word)
+                break
+    words_list = list(dict.fromkeys(words_list))
 
 
-words_list = domain_hyponyms
-questions_list = []
+def get_words_and_clues(domain):
+    domain_hyponyms = get_hyponyms(domain)
+    words_list = domain_hyponyms
+    parse_words_list(words_list)
+    words_list.sort(key=len, reverse=True)
+    questions_list = []
 
-for word in words_list:
-    rnd = random.randint(0, 2)
+    for word in words_list:
+        rnd = random.randint(0, 2)
 
-    if rnd == 0:
-        print("Looking for a synonym for: ", word)
-    else:
-        print("Looking for an antonym for: ", word)
+        if rnd == 0:
+            print("Looking for a synonym for: ", word)
+        else:
+            print("Looking for an antonym for: ", word)
 
-    if rnd == 0 and has_synonysms(word):
-        questions_list.append(f"Synonym for {get_synonym(word)}")
-    elif rnd == 1 and has_antonyms(word):
-        questions_list.append(f"Antonym for {get_antonym(word)}")
-    else:
-        questions_list.append(get_def(word))
+        if rnd == 0 and has_synonysms(word):
+            questions_list.append(f"Synonym for {get_synonym(word)}")
+        elif rnd == 1 and has_antonyms(word):
+            questions_list.append(f"Antonym for {get_antonym(word)}")
+        else:
+            questions_list.append(get_def(word))
 
-print(words_list)
-print(questions_list)
+    for i in range(len(words_list)):
+        words_list[i] = words_list[i].upper()
 
-# print(get_hyponyms(domain))
+    return words_list, questions_list
 
