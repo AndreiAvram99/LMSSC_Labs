@@ -171,6 +171,13 @@ class CrossWordsGenerator:
                     local_word += character
                 local_words.append(local_word)
 
+        for item in local_words:
+            if len(item.replace("~", "")) == 1:
+                self.used_words.append(item.replace("~", ""))
+
+        print(self.keyword)
+        print(self.used_words)
+        print(local_words)
         for index, local_word in enumerate(local_words):
             if local_cross_words_matrix[1][self.keyword_start_column] != '~' and num == 2:
                 num = 3
@@ -180,7 +187,8 @@ class CrossWordsGenerator:
                                                   num=num,
                                                   ans=self.used_words[index + 1],
                                                   index_in_words_list=self.raw_cross_words.index(
-                                                      self.used_words[index + 1]))
+                                                      self.used_words[index + 1]) if len(
+                                                      self.used_words[index + 1]) != 1 else -1)
             num += 1
             line_index += 2
 
@@ -231,13 +239,14 @@ class CluesGenerator:
         local_clues_down_list = self.cross_words_generator.used_words_proprieties_down
 
         for across_clue in local_clues_across_list:
-            clue = Clue(row=across_clue[ClueProp.row],
-                        col=across_clue[ClueProp.col],
-                        num=across_clue[ClueProp.num],
-                        orientation=across_clue[ClueProp.dir],
-                        ans=across_clue[ClueProp.ans],
-                        clue_text=self.raw_clues[across_clue[ClueProp.data_index]])
-            local_clues_list.append(clue)
+            if len(across_clue[ClueProp.ans]) != 1:
+                clue = Clue(row=across_clue[ClueProp.row],
+                            col=across_clue[ClueProp.col],
+                            num=across_clue[ClueProp.num],
+                            orientation=across_clue[ClueProp.dir],
+                            ans=across_clue[ClueProp.ans],
+                            clue_text=self.raw_clues[across_clue[ClueProp.data_index]])
+                local_clues_list.append(clue)
 
         for across_clue in local_clues_down_list:
             clue = Clue(row=across_clue[ClueProp.row],
